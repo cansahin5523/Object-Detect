@@ -1,0 +1,37 @@
+import cv2
+import numpy as np
+
+cap = cv2.VideoCapture(0)
+
+while True:
+    _,frame = cap.read()
+    frameres = cv2.resize(frame,(600,400))
+
+    hsv = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
+
+
+    low_red = np.array([0,120,70])
+    upp_red = np.array([10,255,255])
+    mask1 = cv2.inRange(hsv,low_red,upp_red)
+
+    low_red = np.array([170,120,70])
+    upp_red = np.array([180,255,255])
+    mask2 = cv2.inRange(hsv,low_red,upp_red)
+
+    mask1 = mask1 + mask2
+    #result = cv2.bitwise_and(frame,frame,mask=mask1)
+
+    resultres = cv2.resize(mask1,(600,400))
+
+    edged = cv2.Canny(resultres,30,300)
+    contours,hiearchy = cv2.findContours(edged,cv2.cv2.RETR_TREE,cv2.CHAIN_APPROX_NONE)
+    cv2.drawContours(frameres,contours,-1,(0,255,0),3)
+
+
+    cv2.imshow("mask",resultres)
+    cv2.imshow("frame",frameres)
+    k = cv2.waitKey(1) & 0xFF
+    if k == 27:
+        break
+cap.release()
+cv2.destroyAllWindows()
